@@ -1,23 +1,21 @@
 var mongoose = require('mongoose');
-const UserModel = require('./DBModels/UserModel');
-
+var UserModel = require('./DBModels/UserModel');
 
 
 module.exports = {
     connectToServer: function(isConnected) {
-        mongoose.connect(process.env.MONGO_DB_HOST_URL, { useNewUrlParser: true}).then(() =>{
+        mongoose.connect(process.env.MONGO_DB_HOST_URL, { useNewUrlParser: true, useUnifiedTopology: true}).then(() =>{
             console.log("DB connected")
-          //  createUsers();
+            createUsers();
             isConnected(true)
         }).catch(err =>{ 
             isConnected(false)
-            console.log(err)
         });
     },
   };
 
   function createUsers(){
-    userSchema.insertMany([{
+    UserModel.insertMany([{
         name:"User1",
         userName: "User1@creator",
         is_creator:true
