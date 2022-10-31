@@ -38,7 +38,6 @@ app.use(function(req, res, next) {
 });
 
 dbConnection.connectToServer((isConnected) =>{
-  console.log("isConnected",isConnected)
 });
 
 

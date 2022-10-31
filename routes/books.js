@@ -12,7 +12,6 @@ router.get('/',validator, async function(req, res, next) {
      if(user.is_viewer && !user.is_viewAll){
         filterObj.createdBy = user.userName
      }
-    if(!user.is_creator && (user.is_viewer || user.is_viewAll)){
     if(req.query.hasOwnProperty("old")){
         filterObj.createdOn =  { $lt : new Date(Date.now() - 10*60000).toISOString()}
          books = await BookModel.find(filterObj).sort({createdOn: -1}).limit(req.query.old)
@@ -20,12 +19,10 @@ router.get('/',validator, async function(req, res, next) {
         filterObj.createdOn =  { $gte : new Date(Date.now() - 10*60000).toISOString()}
         books = await BookModel.find(filterObj).sort({createdOn: -1}).limit(req.query.new)
     }else{
-        books = await BookModel.find()
+        books = await BookModel.find(filterObj)
     }
     res.json(books)
-}else{
-    res.json({Err:"Creator not view books"})
-}
+
 
 });
 
@@ -34,8 +31,7 @@ router.put('/', validator, async function(req, res){
     const body = req.body
     const user = req.user
     if(user.is_creator){
-       const book = await BookModel.findOneAndUpdate({title:body.title},{$set:{summary:body.summary}},{new: true})
-       console.warn("update",book)
+       const book = await BookModel.findOneAndUpdate({_id:body.id},{$set:{summary:body.summary, title:body.title}},{new: true})
        if(book){
         res.json(book)
        }else{
@@ -48,7 +44,6 @@ router.put('/', validator, async function(req, res){
 
 /* create books */
 router.post('/',validator, function(req, res, next) {
-    console.log(req.body)
     const body = req.body
     const user = req.user
     BookModel.create({
@@ -85,7 +80,6 @@ router.post('/delete',validator, async function(req, res, next) {
 
 function validator(req, res, next){
     const token = req.headers.jwt
-    console.log("token", token)
     if(token){
         jwt.verify(token,'shhhhh',(err, data) =>{
             if(err){
